@@ -30,7 +30,6 @@
             "email": "cs210785gaa@gmail.com"
         }
     ],
-    "minimum-stability": "stable",
     "autoload": {
       "psr-4": { "AlexCk\\MailchimpBundle\\": "src/AlexCk/MailchimpBundle" }
     },
