@@ -1,0 +1,14 @@
+services:
+  AlexCk\MailchimpBundle\Service\GuzzleClient\GuzzleClientImpl:
+    public: false
+  alexck_mailchimp.guzzle:
+    alias: AlexCk\MailchimpBundle\Service\GuzzleClient\GuzzleClientImpl
+    public: false
+
+  AlexCk\MailchimpBundle\Service\MailChimp\MailChimpClientImpl:
+    public: true
+    arguments:
+      - "@alexck_mailchimp.guzzle"
+  alexck_mailchimp.client:
+    alias: AlexCk\MailchimpBundle\Service\MailChimp\MailChimpClientImpl
+    public: true
