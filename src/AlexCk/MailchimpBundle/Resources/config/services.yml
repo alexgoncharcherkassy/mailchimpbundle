@@ -7,6 +7,8 @@ services:
 
   AlexCk\MailchimpBundle\Service\MailChimp\MailChimpClientImpl:
     public: true
+    calls:
+      - { method: setSerializer, arguments: ['@serializer'] }
     arguments:
       - "@alexck_mailchimp.guzzle"
   alexck_mailchimp.client:
@@ -14,57 +16,49 @@ services:
     public: true
 
   AlexCk\MailchimpBundle\Normalize\MailChimp\ListItemNormalizer:
-  tags:
-    - { name: serializer.normalizer }
+    tags: [serializer.normalizer]
   alexck_mailchimp.item_list_normalizer:
     alias: AlexCk\MailchimpBundle\Normalize\MailChimp\ListItemNormalizer
     public: true
 
   AlexCk\MailchimpBundle\Normalize\MailChimp\ListItemContactNormalizer:
-    tags:
-      - { name: serializer.normalizer }
+    tags: [serializer.normalizer]
   alexck_mailchimp.item_list_contact_normalizer:
     alias: AlexCk\MailchimpBundle\Normalize\MailChimp\ListItemContactNormalizer
     public: true
 
   AlexCk\MailchimpBundle\Normalize\MailChimp\ListItemCampaignDefaultsNormalizer:
-    tags:
-      - { name: serializer.normalizer }
+    tags: [serializer.normalizer]
   alexck_mailchimp.item_list_campaign_defaults_normalizer:
     alias: AlexCk\MailchimpBundle\Normalize\MailChimp\ListItemCampaignDefaultsNormalizer
     public: true
 
   AlexCk\MailchimpBundle\Normalize\MailChimp\MailChimpResponseNormalizer:
-    tags:
-      - { name: serializer.normalizer }
+    tags: [serializer.normalizer]
   alexck_mailchimp.response_normalizer:
     alias: AlexCk\MailchimpBundle\Normalize\MailChimp\MailChimpResponseNormalizer
     public: true
 
   AlexCk\MailchimpBundle\Normalize\MailChimp\MemberNormalizer:
-    tags:
-      - { name: serializer.normalizer }
+    tags: [serializer.normalizer]
   alexck_mailchimp.member_normalizer:
     alias: AlexCk\MailchimpBundle\Normalize\MailChimp\MemberNormalizer
     public: true
 
   AlexCk\MailchimpBundle\Normalize\MailChimp\MailChimpWebhookNormalizer:
-    tags:
-      - { name: serializer.normalizer }
+    tags: [serializer.normalizer]
   alexck_mailchimp.webhook_normalizer:
     alias: AlexCk\MailchimpBundle\Normalize\MailChimp\MailChimpWebhookNormalizer
     public: true
 
   AlexCk\MailchimpBundle\Normalize\MailChimp\MailChimpWebhookEventNormalizer:
-    tags:
-      - { name: serializer.normalizer }
+    tags: [serializer.normalizer]
   alexck_mailchimp.webhook_event_normalizer:
     alias: AlexCk\MailchimpBundle\Normalize\MailChimp\MailChimpWebhookEventNormalizer
     public: true
 
   AlexCk\MailchimpBundle\Normalize\MailChimp\BatchResponseNormalizer:
-    tags:
-      - { name: serializer.normalizer }
+    tags: [serializer.normalizer]
   alexck_mailchimp.batch_response_normalizer:
     alias: AlexCk\MailchimpBundle\Normalize\MailChimp\BatchResponseNormalizer
     public: true
