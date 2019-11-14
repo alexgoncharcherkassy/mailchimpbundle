@@ -25,8 +25,8 @@ class MailChimpResponseNormalizer implements NormalizerInterface, DenormalizerIn
         $item = &$object;
 
         $data = [
-            'lists' => $item->getLists(),
-            'webhooks' => $item->getWebhooks(),
+            'lists' => $this->serializer->normalize($item->getLists(), 'json'),
+            'webhooks' => $this->serializer->normalize($item->getWebhooks(), 'json'),
         ];
 
         return $data;

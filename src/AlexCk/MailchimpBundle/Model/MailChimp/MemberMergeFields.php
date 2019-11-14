@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace AlexCk\MailchimpBundle\Model\MailChimp;
 
-class MemberMergeFields implements \JsonSerializable
+use JsonSerializable;
+
+class MemberMergeFields implements JsonSerializable
 {
     /**
      * @var string
@@ -40,7 +42,7 @@ class MemberMergeFields implements \JsonSerializable
         return $this->lName;
     }
 
-    public function setLName(s $lName): MemberMergeFields
+    public function setLName(string $lName): MemberMergeFields
     {
         $this->lName = $lName;
         return $this;

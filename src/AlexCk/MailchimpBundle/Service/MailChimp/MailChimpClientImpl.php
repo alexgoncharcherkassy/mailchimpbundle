@@ -49,6 +49,7 @@ class MailChimpClientImpl implements MailChimpClient, SerializerAwareInterface
             $config
                 ->setUsername($username)
                 ->setPassword($key)
+                ->setVersion($version)
                 ->setBaseUri(self::MAIL_CHIMP_API_HOST . $this->getDCFromApiKey($key) . '.' . self::MAIL_CHIMP_API_DOMAIN . $version . '/')
                 ->setAccept('application/json')
                 ->setContentType('application/json');
@@ -85,25 +86,25 @@ class MailChimpClientImpl implements MailChimpClient, SerializerAwareInterface
 
         try {
             $response = $this->getClient()->post('lists', $data);
+
+            return $this->serializer->denormalize($response->getBody()->getContents(), ListItem::class, 'json', []);
         } catch (GuzzleClientException $e) {
             throw new MailChimpException($e->getStatusCode(), $e->getMessage(), $e->getExceptionContents());
         }
-
-        return  $this->serializer->denormalize($response->getBody()->getContents(), ListItem::class, 'json', []);
     }
 
     public function getLists(): MailChimpResponse
     {
         try {
             $response = $this->getClient()->get('lists');
+
+            return $this->serializer->denormalize($response->getBody()->getContents(), MailChimpResponse::class, 'json', []);
         } catch (GuzzleClientException $e) {
             throw new MailChimpException($e->getStatusCode(), $e->getMessage(), $e->getExceptionContents());
         }
-
-        return $this->serializer->denormalize($response->getBody()->getContents(), MailChimpResponse::class, 'json', []);
     }
 
-    public function createMember(Member $member, string $listId, ?string $unsubscribeUrl): Member
+    public function createMember(Member $member, string $listId, ?string $unsubscribeUrl = null): Member
     {
         $data = $this->serializer->normalize($member, 'json', []);
 
@@ -112,18 +113,18 @@ class MailChimpClientImpl implements MailChimpClient, SerializerAwareInterface
                 'lists/' . $listId . '/members',
                 $data
             );
+
+            if ($unsubscribeUrl) {
+                $this->createWebHookEventUnsubscribe($listId, $unsubscribeUrl);
+            }
+
+            return $this->serializer->denormalize($response->getBody()->getContents(), Member::class, 'json', []);
         } catch (GuzzleClientException $e) {
             throw new MailChimpException($e->getStatusCode(), $e->getMessage(), $e->getExceptionContents());
         }
-
-        if ($unsubscribeUrl) {
-            $this->createWebHookEventUnsubscribe($listId, $unsubscribeUrl);
-        }
-
-        return $this->serializer->denormalize($response->getBody()->getContents(), Member::class, 'json', []);
     }
 
-    public function updateMember(Member $member, string $listId, string $oldEmail, ?string $unsubscribeUrl): Member
+    public function updateMember(Member $member, string $listId, string $oldEmail, ?string $unsubscribeUrl = null): Member
     {
         $data = $this->serializer->normalize($member, 'json', []);
 
@@ -132,15 +133,15 @@ class MailChimpClientImpl implements MailChimpClient, SerializerAwareInterface
                 'lists/' . $listId . '/members/' . $this->getMemberHash($oldEmail),
                 $data
             );
+
+            if ($unsubscribeUrl) {
+                $this->createWebHookEventUnsubscribe($listId, $unsubscribeUrl);
+            }
+
+            return $this->serializer->denormalize($response->getBody()->getContents(), Member::class, 'json', []);
         } catch (GuzzleClientException $e) {
             throw new MailChimpException($e->getStatusCode(), $e->getMessage(), $e->getExceptionContents());
         }
-
-        if ($unsubscribeUrl) {
-            $this->createWebHookEventUnsubscribe($listId, $unsubscribeUrl);
-        }
-
-        return $this->serializer->denormalize($response->getBody()->getContents(), Member::class, 'json', []);
     }
 
     private function getMemberHash($email)
@@ -155,22 +156,22 @@ class MailChimpClientImpl implements MailChimpClient, SerializerAwareInterface
                 'lists/' . $listId . '/members/' . $this->getMemberHash($member->getEmail()),
                 []
             );
+
+            return true;
         } catch (GuzzleClientException $e) {
             throw new MailChimpException($e->getStatusCode(), $e->getMessage(), $e->getExceptionContents());
         }
-
-        return true;
     }
 
     public function listWebHookEvent(string $listId): MailChimpResponse
     {
         try {
             $response = $this->getClient()->get('lists/' . $listId . '/webhooks');
+
+            return $this->serializer->denormalize($response->getBody()->getContents(), MailChimpResponse::class, 'json', []);
         } catch (GuzzleClientException $e) {
             throw new MailChimpException($e->getStatusCode(), $e->getMessage(), $e->getExceptionContents());
         }
-
-        return $this->serializer->denormalize($response->getBody()->getContents(), MailChimpResponse::class, 'json', []);
     }
 
     public function createWebHookEventUnsubscribe(string $listId, string $unsubscribeUrl): MailChimpWebHook
@@ -198,11 +199,11 @@ class MailChimpClientImpl implements MailChimpClient, SerializerAwareInterface
                     'lists/' . $listId . '/webhooks',
                     $data
                 );
+
+                return $this->serializer->denormalize($response->getBody()->getContents(), MailChimpWebHook::class, 'json', []);
             } catch (GuzzleClientException $e) {
                 throw new MailChimpException($e->getStatusCode(), $e->getMessage(), $e->getExceptionContents());
             }
-
-            return $this->serializer->denormalize($response->getBody()->getContents(), MailChimpWebHook::class, 'json', []);
         }
 
         return new MailChimpWebHook();
@@ -210,25 +211,23 @@ class MailChimpClientImpl implements MailChimpClient, SerializerAwareInterface
 
     private function checkIsExistsUnsubscribeWebhook(string $listId): bool
     {
-        try {
-            $mailChimpResponse = $this->listWebHookEvent($listId);
-        } catch (GuzzleClientException $exception) {
-            $mailChimpResponse = new MailChimpResponse();
-        }
-
         $isFind = false;
 
-        /** @var MailChimpWebHook $webhook */
-        foreach ($mailChimpResponse->getWebhooks() as $webhook) {
-            if ($webhook->getEvents() && $webhook->getEvents()->isUnsubscribe()) {
-                $isFind = true;
+        try {
+            $mailChimpResponse = $this->listWebHookEvent($listId);
+
+            /** @var MailChimpWebHook $webhook */
+            foreach ($mailChimpResponse->getWebhooks() as $webhook) {
+                if ($webhook->getEvents() && $webhook->getEvents()->isUnsubscribe()) {
+                    $isFind = true;
+                }
             }
-        }
+        } catch (GuzzleClientException $exception) {}
 
         return $isFind;
     }
 
-    public function createBatchMember(string $listId, iterable $members, ?string $unsubscribeUrl): BatchResponse
+    public function createBatchMember(string $listId, iterable $members, ?string $unsubscribeUrl = null): BatchResponse
     {
         $batchReq = new BatchRequest();
 
@@ -248,14 +247,14 @@ class MailChimpClientImpl implements MailChimpClient, SerializerAwareInterface
 
         try {
             $response = $this->getClient()->post('batches', $data);
+
+            if ($unsubscribeUrl) {
+                $this->createWebHookEventUnsubscribe($listId, $unsubscribeUrl);
+            }
+
+            return $this->serializer->denormalize($response->getBody()->getContents(), BatchResponse::class, 'json', []);
         } catch (GuzzleClientException $e) {
             throw new MailChimpException($e->getStatusCode(), $e->getMessage(), $e->getExceptionContents());
         }
-
-        if ($unsubscribeUrl) {
-            $this->createWebHookEventUnsubscribe($listId, $unsubscribeUrl);
-        }
-
-        return $this->serializer->denormalize($response->getBody()->getContents(), BatchResponse::class, 'json', []);
     }
 }

@@ -24,6 +24,11 @@ class GuzzleClientConfig
     /**
      * @var string
      */
+    private $version;
+
+    /**
+     * @var string
+     */
     private $accept;
 
     /**
@@ -71,6 +76,18 @@ class GuzzleClientConfig
     public function setBaseUri(string $baseUri): GuzzleClientConfig
     {
         $this->baseUri = $baseUri;
+
+        return $this;
+    }
+
+    public function getVersion(): string
+    {
+        return $this->version;
+    }
+
+    public function setVersion(string $version): GuzzleClientConfig
+    {
+        $this->version = $version;
 
         return $this;
     }

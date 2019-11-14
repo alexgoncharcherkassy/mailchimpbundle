@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AlexCk\MailchimpBundle\Service\GuzzleClient;
 
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 
 interface GuzzleClient
 {

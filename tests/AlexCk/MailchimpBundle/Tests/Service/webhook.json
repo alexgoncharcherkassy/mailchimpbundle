@@ -1,0 +1,8 @@
+{
+  "id": "id2",
+  "url": "https:\/\/test.com\/webhook",
+  "events": {
+    "subscribe": true,
+    "unsubscribe": false
+  }
+}

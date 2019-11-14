@@ -10,12 +10,12 @@ use Doctrine\Common\Collections\Collection;
 class MailChimpResponse
 {
     /**
-     * @var ArrayCollection
+     * @var ArrayCollection<ListItem>
      */
     private $lists;
 
     /**
-     * @var ArrayCollection
+     * @var ArrayCollection<MailChimpWebHook>
      */
     private $webhooks;
 

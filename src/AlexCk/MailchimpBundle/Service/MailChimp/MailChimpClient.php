@@ -18,9 +18,9 @@ interface MailChimpClient
 
     public function getLists(): MailChimpResponse;
 
-    public function createMember(Member $member, string $listId, ?string $unsubscribeUrl);
+    public function createMember(Member $member, string $listId, ?string $unsubscribeUrl = null);
 
-    public function updateMember(Member $member, string $listId, string $oldEmail, ?string $unsubscribeUrl);
+    public function updateMember(Member $member, string $listId, string $oldEmail, ?string $unsubscribeUrl = null);
 
     public function deleteMember(Member $member, string $listId): bool ;
 
@@ -28,5 +28,5 @@ interface MailChimpClient
 
     public function createWebHookEventUnsubscribe(string $listId, string $unsubscribeUrl): MailChimpWebHook;
 
-    public function createBatchMember(string $listId, iterable $members, ?string $unsubscribeUrl): BatchResponse;
+    public function createBatchMember(string $listId, iterable $members, ?string $unsubscribeUrl = null): BatchResponse;
 }

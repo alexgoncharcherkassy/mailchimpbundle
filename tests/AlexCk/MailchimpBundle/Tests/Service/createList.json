@@ -1,0 +1,22 @@
+{
+  "name": "name",
+  "contact": {
+    "company": "comp",
+    "address1": "adr1",
+    "address2": "adr2",
+    "city": "CK",
+    "zip": "18000",
+    "country": "UA",
+    "phone": "123456789",
+    "state": "CK"
+  },
+  "campaign_defaults": {
+    "from_name": "fromName",
+    "from_email": "test@test.com",
+    "subject": "sub",
+    "language": "en"
+  },
+  "permission_reminder": "perm_rem",
+  "id": "id1",
+  "email_type_option": true
+}

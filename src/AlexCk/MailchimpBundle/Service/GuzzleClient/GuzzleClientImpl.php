@@ -9,6 +9,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class GuzzleClientImpl implements GuzzleClient
@@ -16,6 +17,7 @@ class GuzzleClientImpl implements GuzzleClient
     const CLIENT_USERNAME_EXCEPTION = 'Username not found in config';
     const CLIENT_PASSWORD_EXCEPTION = 'Password not found in config';
     const CLIENT_BASE_URI_EXCEPTION = 'Base URI not found in config';
+    const CLIENT_BASE_VERSION_EXCEPTION = 'Version not found in config';
 
     /** @var Client */
     private $client;
@@ -118,6 +120,8 @@ class GuzzleClientImpl implements GuzzleClient
             throw new GuzzleClientException(Response::HTTP_INTERNAL_SERVER_ERROR, self::CLIENT_PASSWORD_EXCEPTION);
         } elseif (!$config->getBaseUri()) {
             throw new GuzzleClientException(Response::HTTP_INTERNAL_SERVER_ERROR, self::CLIENT_BASE_URI_EXCEPTION);
+        } elseif (!$config->getVersion()) {
+            throw new GuzzleClientException(Response::HTTP_INTERNAL_SERVER_ERROR, self::CLIENT_BASE_VERSION_EXCEPTION);
         }
     }
 }
