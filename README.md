@@ -1,2 +1,2 @@
 # Simple client for Mailchimp
-<img alt="" src="https://travis-ci.org/alexgoncharcherkassy/mailchimpbundle.svg?branch=master">
+[![Build Status](https://travis-ci.org/alexgoncharcherkassy/mailchimpbundle.svg?branch=master)](https://travis-ci.org/alexgoncharcherkassy/mailchimpbundle)
