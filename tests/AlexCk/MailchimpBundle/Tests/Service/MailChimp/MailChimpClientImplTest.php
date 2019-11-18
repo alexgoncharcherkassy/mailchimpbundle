@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AlexCk\MailchimpBundle\Tests\Service;
+namespace AlexCk\MailchimpBundle\Tests\Service\MailChimp;
 
 use AlexCk\MailchimpBundle\Model\MailChimp\ListItem;
 use AlexCk\MailchimpBundle\Model\MailChimp\ListItemCampaignDefaults;
@@ -24,22 +24,22 @@ class MailChimpClientImplTest extends WebTestCase
      * @var MockObject|GuzzleClientImpl
      */
     private $guzzleClient;
-    /** @var MailChimpClientImpl */
-    private $mailchimpClient;
     private $client;
 
     protected function setUp(): void
     {
         $this->client = self::createClient();
         $this->guzzleClient = $this->client->getContainer()->get('alexck_mailchimp.guzzle');
-        $this->mailchimpClient = $this->client->getContainer()->get('alexck_mailchimp.client');
     }
 
     public function testConfigure()
     {
-        $this->mailchimpClient->configure('test', 'test', '3.0');
+        $mailchimpClient = new MailChimpClientImpl($this->guzzleClient);
+        $mailchimpClient->setSerializer($this->client->getContainer()->get('serializer'));
 
-        $this->assertNotEmpty($this->mailchimpClient);
+        $mailchimpClient->configure('test', 'test', '3.0');
+
+        $this->assertNotEmpty($mailchimpClient);
     }
 
     /**
@@ -49,8 +49,10 @@ class MailChimpClientImplTest extends WebTestCase
     public function testFailConfigure(array $data)
     {
         $this->expectException(GuzzleClientException::class);
+        $mailchimpClient = new MailChimpClientImpl($this->guzzleClient);
+        $mailchimpClient->setSerializer($this->client->getContainer()->get('serializer'));
 
-        $this->mailchimpClient->configure($data['username'], $data['key'], $data['version']);
+        $mailchimpClient->configure($data['username'], $data['key'], $data['version']);
     }
 
     public function failData()
@@ -82,6 +84,9 @@ class MailChimpClientImplTest extends WebTestCase
 
     public function testGetLists()
     {
+        $mailchimpClient = new MailChimpClientImpl($this->guzzleClient);
+        $mailchimpClient->setSerializer($this->client->getContainer()->get('serializer'));
+
         $resp = $this->createMockResponse('getLists.json');
 
         $this->guzzleClient
@@ -89,9 +94,9 @@ class MailChimpClientImplTest extends WebTestCase
             ->method('get')
             ->willReturn($resp);
 
-        $this->mailchimpClient->configure('test', 'test', '3.0');
+        $mailchimpClient->configure('test', 'test', '3.0');
 
-        $lists = $this->mailchimpClient->getLists();
+        $lists = $mailchimpClient->getLists();
 
         $this->assertEquals(1, $lists->getLists()->count());
         $this->assertEquals(1, $lists->getWebhooks()->count());
@@ -118,6 +123,9 @@ class MailChimpClientImplTest extends WebTestCase
 
     public function testCreateList()
     {
+        $mailchimpClient = new MailChimpClientImpl($this->guzzleClient);
+        $mailchimpClient->setSerializer($this->client->getContainer()->get('serializer'));
+
         $resp = $this->createMockResponse('createList.json');
 
         $this->guzzleClient
@@ -125,10 +133,10 @@ class MailChimpClientImplTest extends WebTestCase
             ->method('post')
             ->willReturn($resp);
 
-        $this->mailchimpClient->configure('test', 'test', '3.0');
+        $mailchimpClient->configure('test', 'test', '3.0');
 
         /** @var ListItem $item */
-        $item = $this->mailchimpClient->createList($this->createListItem());
+        $item = $mailchimpClient->createList($this->createListItem());
 
         $this->assertEquals('name', $item->getName());
         $this->assertEquals('perm_rem', $item->getPermissionReminder());
@@ -150,6 +158,9 @@ class MailChimpClientImplTest extends WebTestCase
 
     public function testCreateMember()
     {
+        $mailchimpClient = new MailChimpClientImpl($this->guzzleClient);
+        $mailchimpClient->setSerializer($this->client->getContainer()->get('serializer'));
+
         $resp = $this->createMockResponse('member.json');
 
         $this->guzzleClient
@@ -157,10 +168,10 @@ class MailChimpClientImplTest extends WebTestCase
             ->method('post')
             ->willReturn($resp);
 
-        $this->mailchimpClient->configure('test', 'test', '3.0');
+        $mailchimpClient->configure('test', 'test', '3.0');
 
         /** @var Member $member */
-        $member = $this->mailchimpClient->createMember($this->createMember(), '1');
+        $member = $mailchimpClient->createMember($this->createMember(), '1');
 
         $this->assertEquals('id1', $member->getId());
         $this->assertEquals('good', $member->getStatus());
@@ -169,6 +180,9 @@ class MailChimpClientImplTest extends WebTestCase
 
     public function testUpdateMember()
     {
+        $mailchimpClient = new MailChimpClientImpl($this->guzzleClient);
+        $mailchimpClient->setSerializer($this->client->getContainer()->get('serializer'));
+
         $resp = $this->createMockResponse('member.json');
 
         $this->guzzleClient
@@ -176,10 +190,10 @@ class MailChimpClientImplTest extends WebTestCase
             ->method('put')
             ->willReturn($resp);
 
-        $this->mailchimpClient->configure('test', 'test', '3.0');
+        $mailchimpClient->configure('test', 'test', '3.0');
 
         /** @var Member $member */
-        $member = $this->mailchimpClient->updateMember($this->createMember(), '1', 'test_old@own.com');
+        $member = $mailchimpClient->updateMember($this->createMember(), '1', 'test_old@own.com');
 
         $this->assertEquals('id1', $member->getId());
         $this->assertEquals('good', $member->getStatus());
@@ -188,20 +202,26 @@ class MailChimpClientImplTest extends WebTestCase
 
     public function testDeleteMember()
     {
+        $mailchimpClient = new MailChimpClientImpl($this->guzzleClient);
+        $mailchimpClient->setSerializer($this->client->getContainer()->get('serializer'));
+
         $this->guzzleClient
             ->expects($this->once())
             ->method('delete')
             ->willReturn(new Response());
 
-        $this->mailchimpClient->configure('test', 'test', '3.0');
+        $mailchimpClient->configure('test', 'test', '3.0');
 
-        $result = $this->mailchimpClient->deleteMember($this->createMember(), '1');
+        $result = $mailchimpClient->deleteMember($this->createMember(), '1');
 
         $this->assertTrue($result);
     }
 
     public function testListWebHookEvent()
     {
+        $mailchimpClient = new MailChimpClientImpl($this->guzzleClient);
+        $mailchimpClient->setSerializer($this->client->getContainer()->get('serializer'));
+
         $resp = $this->createMockResponse('getLists.json');
 
         $this->guzzleClient
@@ -209,9 +229,9 @@ class MailChimpClientImplTest extends WebTestCase
             ->method('get')
             ->willReturn($resp);
 
-        $this->mailchimpClient->configure('test', 'test', '3.0');
+        $mailchimpClient->configure('test', 'test', '3.0');
 
-        $lists = $this->mailchimpClient->getLists();
+        $lists = $mailchimpClient->getLists();
         /** @var MailChimpWebHook $webhook */
         $webhook = $lists->getWebhooks()->first();
 
@@ -223,6 +243,9 @@ class MailChimpClientImplTest extends WebTestCase
 
     public function testCreateWebHookEventUnsubscribe()
     {
+        $mailchimpClient = new MailChimpClientImpl($this->guzzleClient);
+        $mailchimpClient->setSerializer($this->client->getContainer()->get('serializer'));
+
         $resp = $this->createMockResponse('webhook.json');
 
         $this->guzzleClient
@@ -237,9 +260,9 @@ class MailChimpClientImplTest extends WebTestCase
             ->method('get')
             ->willReturn($respGet);
 
-        $this->mailchimpClient->configure('test', 'test', '3.0');
+        $mailchimpClient->configure('test', 'test', '3.0');
 
-        $webhook = $this->mailchimpClient->createWebHookEventUnsubscribe('1', 'test.com');
+        $webhook = $mailchimpClient->createWebHookEventUnsubscribe('1', 'test.com');
 
         $this->assertEquals('https://test.com/webhook', $webhook->getUrl());
         $this->assertEquals('id2', $webhook->getId());
@@ -249,6 +272,9 @@ class MailChimpClientImplTest extends WebTestCase
 
     public function testCreateBatchMember()
     {
+        $mailchimpClient = new MailChimpClientImpl($this->guzzleClient);
+        $mailchimpClient->setSerializer($this->client->getContainer()->get('serializer'));
+
         $resp = $this->createMockResponse('batchResponse.json');
 
         $this->guzzleClient
@@ -256,9 +282,9 @@ class MailChimpClientImplTest extends WebTestCase
             ->method('post')
             ->willReturn($resp);
 
-        $this->mailchimpClient->configure('test', 'test', '3.0');
+        $mailchimpClient->configure('test', 'test', '3.0');
 
-        $batchResp = $this->mailchimpClient->createBatchMember('', [$this->createMember()]);
+        $batchResp = $mailchimpClient->createBatchMember('', [$this->createMember()]);
 
         $this->assertEquals('id3', $batchResp->getId());
         $this->assertEquals('success', $batchResp->getStatus());

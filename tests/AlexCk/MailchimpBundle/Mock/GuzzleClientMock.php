@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace AlexCk\MailchimpBundle\Mock;
 
 use AlexCk\MailchimpBundle\Service\GuzzleClient\GuzzleClientImpl;
