@@ -25,6 +25,10 @@
             "email": "cs210785gaa@gmail.com"
         }
     ],
+    "support": {
+        "issues": "https://github.com/alexgoncharcherkassy/mailchimpbundle/issues",
+        "source": "https://github.com/alexgoncharcherkassy/mailchimpbundle"
+    },
     "autoload": {
       "psr-4": { "AlexCk\\MailchimpBundle\\": "src/AlexCk/MailchimpBundle" }
     },
