@@ -4,7 +4,7 @@
 
 ### Composer
 
-    php composer.phar require alexgoncharcherkassy / mailchimpbundle
+    php composer.phar require alexgoncharcherkassy/mailchimpbundle
     
 
 ### AppKernel
