@@ -284,7 +284,7 @@ class MailChimpClientImplTest extends WebTestCase
 
         $mailchimpClient->configure('test', 'test', '3.0');
 
-        $batchResp = $mailchimpClient->createBatchMember('', [$this->createMember()]);
+        $batchResp = $mailchimpClient->createBatchMember('listId', [$this->createMember()]);
 
         $this->assertEquals('id3', $batchResp->getId());
         $this->assertEquals('success', $batchResp->getStatus());

@@ -88,7 +88,7 @@
     
         $webhook = $mailchimp->createWebHookEventUnsubscribe('listId', 'email_member@email.com');
         
-    8. Create batch member
+    8. Create batch members
     
         $member = new Member();
             $member
@@ -96,6 +96,6 @@
             ...
             ;
     
-        $batchResp = $mailchimp->createBatchMember('', [$member]);
+        $batchResp = $mailchimp->createBatchMember('listId', [$member]);
     
           
